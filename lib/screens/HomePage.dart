@@ -9,10 +9,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late List<DocumentSnapshot> courses = [];
+  late ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController();
     fetchCourses();
   }
 
@@ -41,9 +43,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget buildCourseList() {
-    return ListView.builder(
+    return GridView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 8.0,
+        mainAxisSpacing: 8.0,
+      ),
       itemCount: courses.length,
       itemBuilder: (context, index) {
         return FutureBuilder<Image>(
@@ -53,9 +60,9 @@ class _HomePageState extends State<HomePage> {
               return buildCourseItem(courses[index], snapshot.data!);
             } else if (snapshot.hasError) {
               return buildCourseItem(
-                  courses[index],
-                  Image.asset('assets/placeholder_image.png',
-                      fit: BoxFit.cover));
+                courses[index],
+                Image.asset('assets/placeholder_image.png', fit: BoxFit.cover),
+              );
             } else {
               return buildLoadingIndicator();
             }
@@ -65,45 +72,49 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
- Widget buildCourseItem(DocumentSnapshot course, Widget courseImage) {
-  return Card(
-    margin: EdgeInsets.all(8.0),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: double.infinity,
-          height: 200.0, // Adjust the height of the image container as needed
-          child: courseImage,
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                course['title'],
-                style: TextStyle(
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.bold,
-                ),
+  Widget buildCourseItem(DocumentSnapshot course, Widget courseImage) {
+    return Container(
+      height: 400,
+      child: Card(
+        margin: EdgeInsets.all(8.0),
+        elevation: 2.0,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              height: 80.0,
+              child: courseImage,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    course['title'],
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 4.0),
+                  Text(
+                    'Price: ${course['price']}DT/Month',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
-              SizedBox(height: 8.0),
-              Text(
-                'Price: ${course['price']}',
-                style: TextStyle(
-                  fontSize: 16.0,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
-      ],
-    ),
-  );
-}
-
-
+      ),
+    );
+  }
 
   Widget buildLoadingIndicator() {
     return SizedBox(
@@ -112,6 +123,89 @@ class _HomePageState extends State<HomePage> {
       child: CircularProgressIndicator(),
     );
   }
+
+ Widget buildContactForm() {
+  TextEditingController nameController = TextEditingController();
+
+  return Center(
+    child: Container(
+      width: 700.0, // Remplacez 300.0 par la largeur souhaitée
+      padding: EdgeInsets.all(16.0),
+      child: Card(
+        color: Color.fromARGB(255, 231, 156, 36),
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Form(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Contact Us',
+                  style: TextStyle(
+                    fontSize: 24.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 16.0),
+                TextFormField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: 'Name',
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(1.0),
+                  ),
+                ),
+                SizedBox(height: 16.0),
+                TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(1.0),
+                  ),
+                ),
+                SizedBox(height: 16.0),
+                TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Message',
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.9),
+                  ),
+                  maxLines: 4,
+                ),
+                SizedBox(height: 16.0),
+               ElevatedButton(
+  onPressed: () {
+    // Ajoutez votre fonctionnalité d'envoi de message ici
+    print('Send message button pressed');
+  },
+  style: ElevatedButton.styleFrom(
+    primary: Color.fromARGB(255, 167, 34, 79),
+  ),
+  child: Container(
+                   width: 150,
+    child: Center(
+      child: Text(
+        'Send Message',
+        style: TextStyle(
+          color: Colors.white,
+        ),
+      ),
+    ),
+  ),
+),
+
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -126,10 +220,11 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         actions: [
-          CustomContactUsButton(),
+          CustomContactUsButton(scrollController: _scrollController),
         ],
       ),
       body: SingleChildScrollView(
+        controller: _scrollController,
         child: Column(
           children: [
             Stack(
@@ -217,12 +312,12 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-
-            // Section for displaying the list of courses
             Container(
               padding: EdgeInsets.all(10),
               child: buildCourseList(),
             ),
+            // Display the contact form
+            buildContactForm(),
           ],
         ),
       ),
@@ -231,13 +326,17 @@ class _HomePageState extends State<HomePage> {
 }
 
 class CustomContactUsButton extends StatelessWidget {
+  final ScrollController scrollController;
+
+  const CustomContactUsButton({required this.scrollController});
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: InkWell(
         onTap: () {
-          print('Contact Us button pressed');
+          scrollToContactForm();
         },
         child: Row(
           children: [
@@ -256,6 +355,11 @@ class CustomContactUsButton extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void scrollToContactForm() {
+    double offset = 700.0; // Adjust the offset based on your layout
+    scrollController.animateTo(offset, duration: Duration(seconds: 1), curve: Curves.easeInOut);
   }
 }
 

@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home:  HomePage(), // Use the AddCourses widget as the home
+      home:  CourseList(), // Use the AddCourses widget as the home
     );
   }
 }
