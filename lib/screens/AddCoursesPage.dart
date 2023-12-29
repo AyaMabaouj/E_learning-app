@@ -1,5 +1,6 @@
 import 'dart:html' as html;
 import 'dart:html';
+import 'package:e_learningapp/screens/listCourses.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -18,108 +19,120 @@ class _AddCoursesState extends State<AddCourses> {
   String imgUrl = '';
   html.File? file;
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Add Courses'),
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 50),
-          child: Container(
-            width: 400,
-            padding: const EdgeInsets.all(16),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  TextFormField(
-                    controller: _titleController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Title',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Title is required';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 20),
-                  TextFormField(
-                    controller: _priceController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Price',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Price is required';
-                      }
-                      if (double.tryParse(value) == null) {
-                        return 'Enter a valid number for the price';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 20),
-                  Center(
-                    child: GestureDetector(
-                      onTap: () {
-                        selectImage();
-                      },
-                      child: Container(
-                        height: 200,
-                        width: 200,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black),
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+              backgroundColor: Color.fromARGB(255, 255, 208, 126),
+
+      title: Text('Add Courses'),
+    ),
+    body: Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Card(
+          elevation: 1,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: ListView(
+              padding: EdgeInsets.zero, // Remove padding at the top
+              children: <Widget>[
+                Container(
+                  width: 500,
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        TextFormField(
+                          controller: _titleController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Title',
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Title is required';
+                            }
+                            return null;
+                          },
                         ),
-                        child: _isButtonVisible
-                            ? Center(child: Text('Add Image'))
-                            : imgUrl.isNotEmpty
-                                ? Image.network(
-                                    imgUrl,
-                                    height: 200,
-                                    width: 400,
-                                    fit: BoxFit.cover,
-                                  )
-                                : Center(child: Text('Select Image')),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState?.validate() ?? false) {
-                          uploadToFirebase();
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        primary: Color.fromARGB(255, 144, 59, 111),
-                        textStyle: TextStyle(color: Colors.white),
-                      ),
-                      child: Text(
-                        'Add Courses',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                        SizedBox(height: 20),
+                        TextFormField(
+                          controller: _priceController,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Price',
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Price is required';
+                            }
+                            if (double.tryParse(value) == null) {
+                              return 'Enter a valid number for the price';
+                            }
+                            return null;
+                          },
                         ),
-                      ),
+                        SizedBox(height: 20),
+                        Center(
+                          child: GestureDetector(
+                            onTap: () {
+                              selectImage();
+                            },
+                            child: Container(
+                              height: 300,
+                              width: 400,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.black),
+                              ),
+                              child: _isButtonVisible
+                                  ? Center(child: Text('Add Image'))
+                                  : imgUrl.isNotEmpty
+                                      ? Image.network(
+                                          imgUrl,
+                                          height: 200,
+                                          width: 400,
+                                          fit: BoxFit.cover,
+                                        )
+                                      : Center(child: Text('Select Image')),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        Center(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (_formKey.currentState?.validate() ?? false) {
+                                uploadToFirebase();
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              primary: Color.fromARGB(255, 144, 59, 111),
+                              textStyle: TextStyle(color: Colors.white),
+                            ),
+                            child: Text(
+                              'Add Courses',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Future<void> selectImage() async {
     FileUploadInputElement input = FileUploadInputElement()..accept = 'image/*';
@@ -192,24 +205,29 @@ class _AddCoursesState extends State<AddCourses> {
     }
   }
 
-  void showConfirmationDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Confirmation'),
-          content: Text('Courses added successfully!'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                // Optionally, you can navigate to another screen or perform any other action
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+void showConfirmationDialog() async {
+  await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Confirmation'),
+        content: Text('Courses added successfully!'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+              // Navigate to the CourseList page after a successful add
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => CourseList()),
+              );
+            },
+            child: Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 }

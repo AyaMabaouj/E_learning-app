@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:e_learningapp/screens/listCourses.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -75,42 +76,65 @@ class _UpdateCoursesState extends State<UpdateCourses> {
     }
   }
 
-  Future<void> uploadToFirebase() async {
-    if (_titleController.text.isNotEmpty && fileBytes != null) {
-      try {
-        setState(() {
-          isLoading = true;
-        });
+ Future<void> uploadToFirebase() async {
+  if (_titleController.text.isNotEmpty && fileBytes != null) {
+    try {
+      setState(() {
+        isLoading = true;
+      });
 
-        double price = double.tryParse(_priceController.text) ?? 0.0;
+      double price = double.tryParse(_priceController.text) ?? 0.0;
 
-        if (price >= 0) {
-          String downloadUrl = imgUrl.isNotEmpty
-              ? imgUrl
-              : await imageUploader.uploadImage(fileBytes!);
+      if (price >= 0) {
+        String downloadUrl = imgUrl.isNotEmpty
+            ? imgUrl
+            : await imageUploader.uploadImage(fileBytes!);
 
-          // Save data to Firebase Firestore
-          await saveDataToFirebase(downloadUrl, price);
+        // Save data to Firebase Firestore
+        await saveDataToFirebase(downloadUrl, price);
 
-          // Show confirmation dialog
-          showConfirmationDialog('Course updated successfully!');
-        } else {
-          showConfirmationDialog('Invalid price. Please enter a non-negative value.');
-        }
-      } catch (error, stackTrace) {
-        print("Error uploading to Firebase: $error");
-        // Print the stack trace for more detailed error information
-        print(stackTrace);
-        showConfirmationDialog('Error updating course. Please try again later.');
-      } finally {
-        setState(() {
-          isLoading = false;
-        });
+        // Show confirmation dialog
+        await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Confirmation'),
+              content: Text('Course updated successfully!'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                    // Navigate to the list of courses page after a successful update
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => CourseList()),
+                    );
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        showConfirmationDialog('Invalid price. Please enter a non-negative value.');
       }
-    } else {
-      // Handle the case where fileBytes is null (no image selected)
+    } catch (error, stackTrace) {
+      print("Error uploading to Firebase: $error");
+      // Print the stack trace for more detailed error information
+      print(stackTrace);
+      showConfirmationDialog('Error updating course. Please try again later.');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
+  } else {
+    // Handle the case where fileBytes is null (no image selected)
   }
+}
+
+
 
   Future<void> saveDataToFirebase(String downloadUrl, double price) async {
     try {
@@ -151,122 +175,129 @@ class _UpdateCoursesState extends State<UpdateCourses> {
 Widget build(BuildContext context) {
   return Scaffold(
     appBar: AppBar(
+      backgroundColor: Color.fromARGB(255, 255, 208, 126),
       title: Text('Update Course'),
     ),
     body: SingleChildScrollView(
-      child:Padding( padding: const EdgeInsets.only(top: 50.0) ,
-      child: Center(
-        child: Container(
-          width: 400,
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              TextFormField(
-                controller: _titleController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Title',
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+          child: Card(
+            elevation: 1, // Set the elevation to 1
+            child: Container(
+                      height:550,
+
+              padding: const EdgeInsets.all(16),
+              child: Form(
+                // Wrap the form elements with Form widget
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    TextFormField(
+                      controller: _titleController,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Title',
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Title is required';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 20),
+                    TextFormField(
+                      controller: _priceController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Price',
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Price is required';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 20),
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: selectImage,
+                        style: ElevatedButton.styleFrom(
+                          primary: Color.fromARGB(255, 255, 192, 34),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        child: Container(
+                          width: 200,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.camera_alt, color: Colors.white),
+                              SizedBox(width: 8),
+                              Text(
+                                'Change Image',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    FutureBuilder(
+                      future: loadImage(imgUrl),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done) {
+                          if (snapshot.hasError) {
+                            return Text('Error loading image: ${snapshot.error}');
+                          } else {
+                            return snapshot.data != null
+                                ? snapshot.data as Widget
+                                : Container();
+                          }
+                        } else {
+                          return CircularProgressIndicator();
+                        }
+                      },
+                    ),
+                    SizedBox(height: 20),
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: uploadToFirebase,
+                        style: ElevatedButton.styleFrom(
+                          primary: const Color.fromARGB(255, 176, 39, 146),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        child: Container(
+                          width: 150,
+                          child: Center(
+                            child: Text(
+                              'Update Course',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Title is required';
-                  }
-                  return null;
-                },
               ),
-              SizedBox(height: 20),
-              TextFormField(
-                controller: _priceController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Price',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Price is required';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 20),
-              Center(
-  child: ElevatedButton(
-    onPressed: selectImage,
-    style: ElevatedButton.styleFrom(
-      primary: Color.fromARGB(255, 246, 184, 28), // Mauve background color
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-    ),
-    child: Container(
-      width: 200, // Adjust the width as needed
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.camera_alt, color: Colors.white), // Add an icon if desired
-          SizedBox(width: 8),
-          Text(
-            'Change Image',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
             ),
           ),
-        ],
-      ),
-    ),
-  ),
-),
-              SizedBox(height: 20),
-            FutureBuilder(
-  future: loadImage(imgUrl),
-  builder: (context, snapshot) {
-    if (snapshot.connectionState == ConnectionState.done) {
-      if (snapshot.hasError) {
-        return Text('Error loading image: ${snapshot.error}');
-      } else {
-        // Check if snapshot.data is not null before returning
-        return snapshot.data != null ? snapshot.data as Widget : Container();
-      }
-    } else {
-      return CircularProgressIndicator();
-    }
-  },
-),
-              SizedBox(height: 20),
-          Center(
-  child: ElevatedButton(
-    onPressed: uploadToFirebase,
-    style: ElevatedButton.styleFrom(
-      primary: const Color.fromARGB(255, 176, 39, 146), // Mauve background color
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-    ),
-    child: Container(
-      width: 150, // Decreased width
-      child: Center(
-        child: Text(
-          'Update Course',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 13,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    ),
-  ),
-),
-
-
-          
-            ],
-          ),
-        ),
         ),
       ),
     ),
@@ -276,24 +307,29 @@ Widget build(BuildContext context) {
 
 Future<Widget> loadImage(String imageUrl) async {
   if (imageUrl.isNotEmpty) {
-    return Image.network(
-      imageUrl,
-      height: 200,
-      width: 400,
-      fit: BoxFit.cover,
+    return Center(
+      child: Image.network(
+        imageUrl,
+        height: 250,
+        width: 500,
+        fit: BoxFit.cover,
+      ),
     );
   } else if (fileBytes != null) {
-    return Image.memory(
-      fileBytes!,
-      height: 200,
-      width: 400,
-      fit: BoxFit.cover,
+    return Center(
+      child: Image.memory(
+        fileBytes!,
+        height: 250,
+        width: 500,
+        fit: BoxFit.cover,
+      ),
     );
   } else {
     // Return a placeholder widget or an empty container
     return Container(); // You can customize this part based on your UI requirements
   }
 }
+
 
 
 }

@@ -158,14 +158,14 @@ class _CourseListState extends State<CourseList> {
         mainAxisSize: MainAxisSize.min,
         children: [
           IconButton(
-            icon: Icon(Icons.edit, color: const Color.fromARGB(255, 96, 191, 99)), // Set color to green
+            icon: Icon(Icons.edit, color: Color.fromARGB(255, 255, 192, 3)), // Set color to green
             onPressed: () {
               navigateToUpdateCourse(course.id);
             },
             
           ),
           IconButton(
-            icon: Icon(Icons.delete, color: const Color.fromARGB(255, 222, 108, 100)), // Set color to red
+            icon: Icon(Icons.delete, color: Color.fromARGB(255, 166, 35, 111)), // Set color to red
             onPressed: () {
               _showDeleteConfirmationDialog(course.id);
             },
