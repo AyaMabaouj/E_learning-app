@@ -1,4 +1,4 @@
-import 'package:e_learningapp/screens/CoursesPage.dart';
+import 'package:e_learningapp/screens/AddCoursesPage.dart';
 import 'package:e_learningapp/screens/HomePage.dart';
 import 'package:e_learningapp/screens/UpdateCoursesPage.dart';
 import 'package:e_learningapp/screens/listCourses.dart';

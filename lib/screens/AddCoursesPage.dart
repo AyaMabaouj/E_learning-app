@@ -17,7 +17,6 @@ class _AddCoursesState extends State<AddCourses> {
   TextEditingController _priceController = TextEditingController(); // Fixed here
   String imgUrl = '';
   html.File? file;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,78 +24,96 @@ class _AddCoursesState extends State<AddCourses> {
         title: Text('Add Courses'),
       ),
       body: Center(
-        child: Container(
-          width: 300,
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                if (_isButtonVisible)
-                  ElevatedButton(
-                    onPressed: () {
-                      selectImage();
+        child: Padding(
+          padding: const EdgeInsets.only(top: 50),
+          child: Container(
+            width: 400,
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  TextFormField(
+                    controller: _titleController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Title',
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Title is required';
+                      }
+                      return null;
                     },
-                    child: Text('Add Image'),
                   ),
-                SizedBox(height: 20),
-                if (imgUrl.isNotEmpty)
-                  Image.network(
-                    imgUrl,
-                    height: 200,
-                    width: 200,
-                    fit: BoxFit.cover,
+                  SizedBox(height: 20),
+                  TextFormField(
+                    controller: _priceController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Price',
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Price is required';
+                      }
+                      if (double.tryParse(value) == null) {
+                        return 'Enter a valid number for the price';
+                      }
+                      return null;
+                    },
                   ),
-                SizedBox(height: 20),
-                TextFormField(
-                  controller: _titleController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Title',
+                  SizedBox(height: 20),
+                  Center(
+                    child: GestureDetector(
+                      onTap: () {
+                        selectImage();
+                      },
+                      child: Container(
+                        height: 200,
+                        width: 200,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black),
+                        ),
+                        child: _isButtonVisible
+                            ? Center(child: Text('Add Image'))
+                            : imgUrl.isNotEmpty
+                                ? Image.network(
+                                    imgUrl,
+                                    height: 200,
+                                    width: 400,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Center(child: Text('Select Image')),
+                      ),
+                    ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Title is required';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 20),
-                TextFormField(
-                  controller: _priceController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Price',
+                  SizedBox(height: 20),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState?.validate() ?? false) {
+                          uploadToFirebase();
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary: Color.fromARGB(255, 144, 59, 111),
+                        textStyle: TextStyle(color: Colors.white),
+                      ),
+                      child: Text(
+                        'Add Courses',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Price is required';
-                    }
-
-                    // Check if the entered value is a valid number
-                    if (double.tryParse(value) == null) {
-                      return 'Enter a valid number for the price';
-                    }
-
-                    return null;
-                  },
-                ),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      uploadToFirebase();
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    primary: const Color.fromARGB(255, 180, 139, 187),
-                    textStyle: TextStyle(color: Colors.white),
-                  ),
-                  child: Text('Add Courses'),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

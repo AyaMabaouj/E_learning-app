@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:e_learningapp/screens/CoursesPage.dart';
+import 'package:e_learningapp/screens/AddCoursesPage.dart';
 import 'package:e_learningapp/screens/UpdateCoursesPage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -193,7 +193,7 @@ class _CourseListState extends State<CourseList> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Course List'),
-        backgroundColor: Colors.blue,
+        backgroundColor: Color.fromARGB(255, 255, 208, 126),
       ),
       body: buildCourseList(),
       floatingActionButton: FloatingActionButton(
@@ -201,7 +201,7 @@ class _CourseListState extends State<CourseList> {
           navigateToAddCourses(); // Navigate to the AddCoursesPage
         },
         child: Icon(Icons.add),
-        backgroundColor: Colors.blue,
+        backgroundColor: Color.fromARGB(255, 251, 176, 47),
       ),
     );
   }

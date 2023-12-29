@@ -147,40 +147,21 @@ class _UpdateCoursesState extends State<UpdateCourses> {
       },
     );
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Update Course'),
-      ),
-      body: Center(
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Text('Update Course'),
+    ),
+    body: SingleChildScrollView(
+      child:Padding( padding: const EdgeInsets.only(top: 50.0) ,
+      child: Center(
         child: Container(
-          width: 300,
+          width: 400,
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              ElevatedButton(
-                onPressed: selectImage,
-                child: Text('Change Image'),
-              ),
-              SizedBox(height: 20),
-              FutureBuilder(
-  future: loadImage(imgUrl),
-  builder: (context, snapshot) {
-    if (snapshot.connectionState == ConnectionState.done) {
-      if (snapshot.hasError) {
-        return Text('Error loading image: ${snapshot.error}');
-      } else {
-        return snapshot.data as Widget; // Return the Image widget
-      }
-    } else {
-      return CircularProgressIndicator();
-    }
-  },
-),
-              SizedBox(height: 20),
               TextFormField(
                 controller: _titleController,
                 decoration: InputDecoration(
@@ -210,36 +191,110 @@ class _UpdateCoursesState extends State<UpdateCourses> {
                 },
               ),
               SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: uploadToFirebase,
-                child: Text('Update Course'),
-              ),
-            ],
+              Center(
+  child: ElevatedButton(
+    onPressed: selectImage,
+    style: ElevatedButton.styleFrom(
+      primary: Color.fromARGB(255, 246, 184, 28), // Mauve background color
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+    ),
+    child: Container(
+      width: 200, // Adjust the width as needed
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.camera_alt, color: Colors.white), // Add an icon if desired
+          SizedBox(width: 8),
+          Text(
+            'Change Image',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    ),
+  ),
+),
+              SizedBox(height: 20),
+            FutureBuilder(
+  future: loadImage(imgUrl),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.done) {
+      if (snapshot.hasError) {
+        return Text('Error loading image: ${snapshot.error}');
+      } else {
+        // Check if snapshot.data is not null before returning
+        return snapshot.data != null ? snapshot.data as Widget : Container();
+      }
+    } else {
+      return CircularProgressIndicator();
+    }
+  },
+),
+              SizedBox(height: 20),
+          Center(
+  child: ElevatedButton(
+    onPressed: uploadToFirebase,
+    style: ElevatedButton.styleFrom(
+      primary: const Color.fromARGB(255, 176, 39, 146), // Mauve background color
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+    ),
+    child: Container(
+      width: 150, // Decreased width
+      child: Center(
+        child: Text(
+          'Update Course',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
-    );
-  }
+    ),
+  ),
+),
 
- Future<Image?> loadImage(String imageUrl) async {
+
+          
+            ],
+          ),
+        ),
+        ),
+      ),
+    ),
+  );
+}
+
+
+Future<Widget> loadImage(String imageUrl) async {
   if (imageUrl.isNotEmpty) {
     return Image.network(
       imageUrl,
       height: 200,
-      width: 200,
+      width: 400,
       fit: BoxFit.cover,
     );
   } else if (fileBytes != null) {
     return Image.memory(
       fileBytes!,
       height: 200,
-      width: 200,
+      width: 400,
       fit: BoxFit.cover,
     );
   } else {
-    return null;
+    // Return a placeholder widget or an empty container
+    return Container(); // You can customize this part based on your UI requirements
   }
 }
+
 
 }
 
